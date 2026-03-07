@@ -6,41 +6,55 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-export function LoginForm() {
+export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const router = useRouter()
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (signInError) {
-      setError(signInError.message)
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters")
       setLoading(false)
       return
     }
 
-    router.push("/dashboard")
-    router.refresh()
+    const supabase = createClient()
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
+    }
+
+    setSuccess(true)
+    setLoading(false)
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setGoogleLoading(true)
     setError(null)
 
@@ -59,14 +73,41 @@ export function LoginForm() {
     }
   }
 
+  if (success) {
+    return (
+      <div className="w-full max-w-[420px] rounded-2xl border border-border bg-card p-8 shadow-lg shadow-primary/5">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <CheckCircle2 className="h-7 w-7 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Check your email
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            We&apos;ve sent a verification link to{" "}
+            <span className="font-medium text-foreground">{email}</span>.
+            Click the link in your email to verify your account.
+          </p>
+          <Button
+            variant="outline"
+            className="mt-2 rounded-xl"
+            onClick={() => router.push("/login")}
+          >
+            Back to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full max-w-[420px] rounded-2xl border border-border bg-card p-8 shadow-lg shadow-primary/5">
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Welcome back
+          Create an account
         </h1>
         <p className="text-sm text-muted-foreground">
-          Sign in to continue to Campus Connect
+          Join Campus Connect to get started
         </p>
       </div>
 
@@ -76,7 +117,23 @@ export function LoginForm() {
         </div>
       )}
 
-      <form className="mt-8 flex flex-col gap-5" onSubmit={handleEmailLogin}>
+      <form className="mt-8 flex flex-col gap-5" onSubmit={handleEmailSignup}>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="name" className="text-sm font-medium text-foreground">
+            Full Name
+          </Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="John Doe"
+            className="h-11 rounded-xl bg-background"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            disabled={loading || googleLoading}
+          />
+        </div>
+
         <div className="flex flex-col gap-2">
           <Label htmlFor="email" className="text-sm font-medium text-foreground">
             Email
@@ -94,26 +151,19 @@ export function LoginForm() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
-            </Label>
-            <Link
-              href="#"
-              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-            >
-              Forgot password?
-            </Link>
-          </div>
+          <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            Password
+          </Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Create a password (min. 6 characters)"
               className="h-11 rounded-xl bg-background pr-10"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
               disabled={loading || googleLoading}
             />
             <button
@@ -140,10 +190,10 @@ export function LoginForm() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
+              Creating account...
             </>
           ) : (
-            "Sign In"
+            "Create Account"
           )}
         </Button>
 
@@ -158,7 +208,7 @@ export function LoginForm() {
           variant="outline"
           size="lg"
           className="h-11 rounded-xl text-base font-medium gap-3"
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignup}
           disabled={loading || googleLoading}
         >
           {googleLoading ? (
@@ -188,12 +238,12 @@ export function LoginForm() {
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        {"Don't have an account? "}
+        Already have an account?{" "}
         <Link
-          href="/signup"
+          href="/login"
           className="font-medium text-primary hover:text-primary/80 transition-colors"
         >
-          Sign up
+          Sign in
         </Link>
       </p>
     </div>

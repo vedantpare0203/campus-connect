@@ -14,9 +14,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String?
-  email     String   @unique
-  password  String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  supabaseId String?  @unique @map("supabase_id")
+  name       String?
+  email      String   @unique
+  password   String?
+  image      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
 }
