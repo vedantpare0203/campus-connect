@@ -11,6 +11,7 @@ import {
   Settings,
   Upload,
   BarChart3,
+  Trophy,
 } from "lucide-react"
 import {
   Sidebar,
@@ -34,6 +35,7 @@ const navItems = [
   { title: "Semesters", href: "/dashboard/semesters", icon: Calendar },
   { title: "Bookmarks", href: "/dashboard/bookmarks", icon: Bookmark },
   { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { title: "Leaderboard", href: "/dashboard/leaderboard", icon: Trophy, hasLiveBadge: true },
 ]
 
 export function DashboardSidebar() {
@@ -87,6 +89,29 @@ export function DashboardSidebar() {
                       <Link href={item.href}>
                         <item.icon className="h-5 w-5" strokeWidth={1.75} />
                         <span>{item.title}</span>
+                        {/* LIVE badge for Leaderboard */}
+                        {"hasLiveBadge" in item && item.hasLiveBadge && (
+                          <span
+                            className="group-data-[collapsible=icon]:hidden ml-auto"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: 32,
+                              height: 16,
+                              borderRadius: 999,
+                              backgroundColor: "#EF4444",
+                              color: "#fff",
+                              fontSize: 9,
+                              fontWeight: 700,
+                              textTransform: "uppercase" as const,
+                              letterSpacing: "0.05em",
+                              animation: "livePulse 1.5s ease-in-out infinite",
+                            }}
+                          >
+                            LIVE
+                          </span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

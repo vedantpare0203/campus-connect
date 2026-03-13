@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 // Initialize the S3 client — reads from environment variables
@@ -49,4 +49,15 @@ export function buildS3Key(userId: string, subjectId: string, filename: string) 
   const timestamp = Date.now()
   const sanitized = filename.replace(/[^a-zA-Z0-9._-]/g, "_")
   return `uploads/${userId}/${subjectId}/${timestamp}_${sanitized}`
+}
+
+/**
+ * Delete an object from S3 by its key.
+ */
+export async function deleteS3Object(key: string) {
+  const command = new DeleteObjectCommand({
+    Bucket: S3_BUCKET,
+    Key: key,
+  })
+  await s3Client.send(command)
 }

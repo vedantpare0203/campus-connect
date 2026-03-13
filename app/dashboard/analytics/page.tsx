@@ -5,20 +5,30 @@ import { Upload, Download, Bookmark, TrendingUp, ArrowUpRight } from "lucide-rea
 import { CalendarHeatmap } from "@/components/dashboard/calendar-heatmap"
 import { ActivityGraph } from "@/components/dashboard/activity-graph"
 
+// Deterministic seeded random to avoid hydration mismatch
+function seededRandom(seed: number): () => number {
+  let s = seed
+  return () => {
+    s = (s * 16807 + 0) % 2147483647
+    return (s - 1) / 2147483646
+  }
+}
+
 // Generate mock activity data for current and last month
 function generateMockData(month: number, year: number) {
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const heatmap: Record<string, number> = {}
   const uploads: Record<string, number> = {}
   const downloads: Record<string, number> = {}
+  const rand = seededRandom(year * 100 + month + 1)
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-    const u = Math.floor(Math.random() * 5)
-    const dl = Math.floor(Math.random() * 8)
+    const u = Math.floor(rand() * 5)
+    const dl = Math.floor(rand() * 8)
     uploads[dateStr] = u
     downloads[dateStr] = dl
-    heatmap[dateStr] = u + dl + Math.floor(Math.random() * 3)
+    heatmap[dateStr] = u + dl + Math.floor(rand() * 3)
   }
 
   return { heatmap, uploads, downloads }
@@ -39,7 +49,7 @@ export default function AnalyticsPage() {
 
   const totalUploads = Object.values(uploads).reduce((a, b) => a + b, 0)
   const totalDownloads = Object.values(downloads).reduce((a, b) => a + b, 0)
-  const totalBookmarks = Math.floor(Math.random() * 20) + 5
+  const totalBookmarks = 17
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">

@@ -237,6 +237,44 @@
   }
 }
 
+/* ── Leaderboard Animations ── */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+}
+
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes confettiDrift {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-60px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes podiumSlideLeft {
+  0% { transform: translateX(-60px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes podiumSlideRight {
+  0% { transform: translateX(60px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes podiumDropBounce {
+  0% { transform: translateY(-40px); opacity: 0; }
+  60% { transform: translateY(6px); opacity: 1; }
+  80% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes countdownPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* ── Scrollbar styling ── */
 ::-webkit-scrollbar {
   width: 6px;
